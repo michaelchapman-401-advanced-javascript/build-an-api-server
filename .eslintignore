@@ -1,2 +1,5 @@
-node_modules/**
-docs/scripts
+**/node_modules/*
+**/vendor/*
+**/*.min.js
+**/coverage/*
+**/build/*
