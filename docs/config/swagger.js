@@ -15,7 +15,7 @@ let options = {
     produces: [
       'application/json',
     ],
-    host: 'localhost:3000',
+    host: 'localhost:3002',
     schemes: ['http'],
     securityDefinitions: {
       basicAuth: {
