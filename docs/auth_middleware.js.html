@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: 404</title>
+    <title>JSDoc: Source: auth/middleware.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,204 +17,48 @@
 
 <div id="main">
 
-    <h1 class="page-title">Module: 404</h1>
+    <h1 class="page-title">Source: auth/middleware.js</h1>
 
     
 
 
 
-
-<section>
-
-<header>
     
-        
-            
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description">server error handler</div>
-        
-
-        
-            
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>req</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">request object</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">response object</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="middleware_404.js.html">middleware/404.js</a>, <a href="middleware_404.js.html#line3">line 3</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
+
+/**
+   * @module middleware module
+   * @param {object} req - request object
+   * @param {object} res - response object
+   * @desc contains all middleware
+   */
+module.exports = (capability) => {
+  
+  return (req) => {
+    const _authBasic = require('./authenticate/authBasic.js'); 
+    const _authBearer = require('./authenticate/authBearer.js');
+    const _authError = require('./authenticate/authError.js');
+
+    try {
+      let [authType, authString] = req.headers.authorization.split(/\s+/);
+
+      switch (authType.toLowerCase()) {
+      case 'basic':
+        return _authBasic(authString, capability);
+      case 'bearer':
+        return _authBearer(authString, capability);
+      default:
+        return _authError();
+      }
+    } catch (e) {
+      _authError();
+    }
+  };
+};</code></pre>
+        </article>
+    </section>
 
 
 

@@ -18,10 +18,13 @@ const notFound = require( `${cwd}/src/middleware/404.js` );
 const v1Router = require( `${cwd}/src/api/v1.js` );
 const authRouter = require(`${cwd}/src/auth/router.js`);
 
-require('../docs/config/swagger.js');
-
 // Prepare the express app
 const app = express();
+
+// docs
+const options = require('../docs/config/swagger');
+const expressSwagger = require('express-swagger-generator')(app);
+expressSwagger(options);
 
 // App Level MW
 app.use(cors());

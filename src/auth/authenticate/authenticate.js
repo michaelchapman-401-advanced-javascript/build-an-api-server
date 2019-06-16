@@ -2,6 +2,11 @@
 
 const _authError = require('./authError.js');
 
+/**
+   * @module _authenticate(user)
+   * @param {object} user - user object containing user credentials
+   * @desc Handles authenticating a user and moves onto next middleware or returns and error
+   */
 module.exports = (user, capability) => {
   // if user is true
   // and one within the grouping is true

@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+   * @module middleware module
+   * @param {object} req - request object
+   * @param {object} res - response object
+   * @desc contains all middleware
+   */
 module.exports = (capability) => {
   
   return (req) => {

@@ -55,7 +55,6 @@ users.pre('save', function(next) {
 });
 
 users.statics.createFromOauth = function(email) {
-
   if(! email) { return Promise.reject('Validation Error'); }
 
   return this.findOne( {email} )
@@ -64,15 +63,14 @@ users.statics.createFromOauth = function(email) {
       return user;
     })
     .catch( error => {
+      console.log(error);
       let username = email;
       let password = 'none';
       return this.create({username, password, email});
     });
-
 };
 
 users.statics.authenticateToken = function(token) {
-  
   if ( usedTokens.has(token ) ) {
     return Promise.reject('Invalid Token');
   }
@@ -84,7 +82,6 @@ users.statics.authenticateToken = function(token) {
     let query = {_id: parsedToken.id};
     return this.findOne(query);
   } catch(e) { throw new Error('Invalid Token'); }
-  
 };
 
 users.statics.authenticateBasic = function(auth) {
@@ -100,7 +97,6 @@ users.methods.comparePassword = function(password) {
 };
 
 users.methods.generateToken = function(type) {
-  
   let token = {
     id: this._id,
     capabilities: this.acl.capabilities,
