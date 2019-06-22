@@ -8,7 +8,7 @@
    */
 module.exports = (capability) => {
   
-  return (req) => {
+  return (req, res, next) => {
     const _authBasic = require('./authenticate/authBasic.js'); 
     const _authBearer = require('./authenticate/authBearer.js');
     const _authError = require('./authenticate/authError.js');
@@ -18,11 +18,11 @@ module.exports = (capability) => {
 
       switch (authType.toLowerCase()) {
       case 'basic':
-        return _authBasic(authString, capability);
+        return _authBasic(req, authString, capability, next);
       case 'bearer':
-        return _authBearer(authString, capability);
+        return _authBearer(req, authString, capability, next);
       default:
-        return _authError();
+        return _authError(next);
       }
     } catch (e) {
       _authError();

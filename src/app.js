@@ -7,6 +7,8 @@
 
 const cwd = process.cwd();
 
+require('dotenv').config();
+
 // 3rd Party Resources
 const express = require('express');
 const cors = require('cors');
@@ -33,6 +35,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(express.static('docs'));
+app.use('/docs', express.static('docs'));
 
 // Routes
 app.use(authRouter);

@@ -11,6 +11,12 @@ const SECRET = process.env.SECRET || 'foobar';
 
 const usedTokens = new Set();
 
+const capabilities = {
+  admin: ['craete', 'update', 'delete', 'read', 'superuser'],
+  editor: ['create', 'update', 'read'],
+  users: ['read'],
+};
+
 const users = new mongoose.Schema({
   username: {type:String, required:true, unique:true},
   password: {type:String, required:true},
@@ -24,16 +30,16 @@ const users = new mongoose.Schema({
 
 // virtuals join two documents together
 // Link the roles field in users to the role field in roles
-users.virtual('roles', {
+users.virtual('acl', {
   ref: 'roles',
   localField: 'role',
   foreignField: 'type',
   justOne: true,
 });
 
-users.pre('find', function() {
+users.pre('findOne', function() {
   try {
-    this.populate('roles');
+    this.populate('acl');
   }
   catch(e) {
     console.error('error', e);
@@ -54,19 +60,21 @@ users.pre('save', function(next) {
     .catch(error => {throw new Error(error);});
 });
 
-users.statics.createFromOauth = function(email) {
-  if(! email) { return Promise.reject('Validation Error'); }
+users.statics.createFromOauth = function(googleUser) {
+  if(! googleUser) { return Promise.reject('Validation Error'); }
 
+  let email = googleUser.email;
+    
   return this.findOne( {email} )
     .then(user => {
       if( !user ) { throw new Error('User Not Found'); }
       return user;
     })
-    .catch( error => {
-      console.log(error);
+    .catch( () => {
       let username = email;
       let password = 'none';
-      return this.create({username, password, email});
+      let role = 'user';
+      return this.create({username, password, email, role});
     });
 };
 
@@ -91,6 +99,19 @@ users.statics.authenticateBasic = function(auth) {
     .catch(error => {throw error;});
 };
 
+users.statics.authenticateBearer = function(token){
+  if (usedTokens.has(token)) {
+    return Promise.reject('Invalid token');
+  }
+
+  let parsedToken = jwt.verify(token, process.env.SECRET);
+
+  parsedToken.type !== 'key' && usedTokens.add(token);
+
+  let query = {_id: parsedToken.id};
+  return this.findOne(query);
+};
+
 users.methods.comparePassword = function(password) {
   return bcrypt.compare( password, this.password )
     .then( valid => valid ? this : null);
@@ -99,8 +120,8 @@ users.methods.comparePassword = function(password) {
 users.methods.generateToken = function(type) {
   let token = {
     id: this._id,
-    capabilities: this.acl.capabilities,
-    type: type || 'user',
+    capabilities: capabilities[this.role],
+    type: type || this.role || user,
   };
   
   let options = {};

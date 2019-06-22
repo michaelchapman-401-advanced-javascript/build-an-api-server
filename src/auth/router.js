@@ -8,110 +8,6 @@ const Role = require('./roles-model.js');
 const auth = require('./middleware.js');
 const oauth = require('./oauth/google.js');
 
-const newRouter = express.Router();
-
-/**
- * Get public stuff
- * @route GET /{model}
- * @consumes application/json application/xml
- * @returns {Object} 500 - Server error
- * @returns {Object} 200 - { count: 2, results: [{}, {}]}
- */
-newRouter.get('/public-stuff', auth(), (req, res) => {
-  console.log('PUBLIC STUFF');
-  res.status(200).send('Public-Stuff');
-});
-
-/**
- * Get hidden stuff
- * @route GET /{model}
- * @consumes application/json application/xml
- * @returns {Object} 500 - Server error
- * @returns {Object} 200 - { count: 2, results: [{}, {}]}
- */
-newRouter.get('/hidden-stuff', auth(), (req, res) => {
-  console.log('HIDDEN STUFF');
-  res.status(200).send('/hidden-stuff');
-});
-
-/**
- * Get something to read
- * @route GET /{model}
- * @consumes application/json application/xml
- * @returns {Object} 500 - Server error
- * @returns {Object} 200 - { count: 2, results: [{}, {}]}
- */
-newRouter.get('/something-to-read', auth('read'), (req, res) => {
-  console.log('something-to-read');
-  res.status(200).send('something-to-read');
-});
-
-/**
- * Post to create-a-thing
- * @route POST /{model}/{:id}
- * @consumes application/json application/xml
- * @returns {Object} 500 - Server error
- * @returns {Object} 200 - { count: 2, results: [{}, {}]}
- */
-newRouter.post('/create-a-thing', auth('create'), (req, res) => {
-  console.log('create-a-thing');
-  res.status(200).send('create-a-thing');
-});
-
-/**
- * Update something
- * @route PUT /{model}/
- * @consumes application/json application/xml
- * @returns {Object} 500 - Server error
- * @returns {Object} 200 - { count: 2, results: [{}, {}]}
- */
-newRouter.put('/update', auth('update'), (req, res) => {
-  console.log('update');
-  res.status(200).send('update');
-});
-
-/**
- * Update something
- * @route PATCH /{model}/
- * @consumes application/json application/xml
- * @returns {Object} 500 - Server error
- * @returns {Object} 200 - { count: 2, results: [{}, {}]}
- */
-newRouter.patch('/jp', auth('update'), (req, res) => {
-  console.log('jp');
-  res.status(200).send('jp');
-});
-
-/**
- * delete /bye-bye route
- * @route DELETE /{model}/
- * @consumes application/json application/xml
- * @returns {Object} 500 - Server error
- * @returns {Object} 200 - { count: 2, results: [{}, {}]}
- */
-newRouter.delete('/bye-bye', auth('delete'), (req, res) => {
-  console.log('bye-bye');
-  res.status(200).send('bye-bye');
-});
-
-/**
- * get everything route
- * @route GET /{model}/
- * @consumes application/json application/xml
- * @returns {Object} 500 - Server error
- * @returns {Object} 200 - { count: 2, results: [{}, {}]}
- */
-newRouter.get('/everything', auth('superuser'), (req, res) => {
-  console.log('everything');
-  res.status(200).send('everything');
-});
-
-const capabilities = {
-  admin: ['craete', 'update', 'delete', 'read', 'superuser'],
-  editor: ['create', 'update', 'read'],
-  users: ['read'],
-};
-
 /**
  * post route for /role
  * @route POST /{model}/
@@ -119,16 +15,22 @@ const capabilities = {
  * @returns {Object} 500 - Server error
  * @returns {Object} 200 - { count: 2, results: [{}, {}]}
  */
-authRouter.post('/role', () => {
-  let saves = [];
+authRouter.post('/role', (req, res, next) => {
+  let role = new Role(req.body);
 
-  Object.keys(capabilities).map(role => {
-    let newRecord = new Role({role, capabilities: capabilities[role]});
-    saves.push(newRecord.save);
-  });
+  role.save()
+    .then(result => {
+      res.status(200).send(result);
+    })
+    .catch(next);
 
-  // run them all
-  Promise.all(saves);
+  // Object.keys(capabilities).map(role => {
+  //   let newRecord = new Role({role, capabilities: capabilities[role]});
+  //   saves.push(newRecord.save);
+  // });
+
+  // // run them all
+  // Promise.all(saves);
 });
 
 /**
@@ -159,7 +61,6 @@ authRouter.post('/signup', (req, res, next) => {
  * @returns {Object} 200 - { count: 2, results: [{}, {}]}
  */
 authRouter.get('/signin', auth(), (req, res) => {
-  console.log(req.headers);
   res.cookie('auth', req.token);
   res.send(req.token);
 });
@@ -172,6 +73,7 @@ authRouter.get('/signin', auth(), (req, res) => {
  * @returns {Object} 200 - { count: 2, results: [{}, {}]}
  */
 authRouter.get('/oauth', (req,res,next) => {
+  console.log('HELLO');
   oauth.authorize(req)
     .then( token => {
       res.status(200).send(token);
