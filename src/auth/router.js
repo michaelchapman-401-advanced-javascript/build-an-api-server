@@ -23,14 +23,6 @@ authRouter.post('/role', (req, res, next) => {
       res.status(200).send(result);
     })
     .catch(next);
-
-  // Object.keys(capabilities).map(role => {
-  //   let newRecord = new Role({role, capabilities: capabilities[role]});
-  //   saves.push(newRecord.save);
-  // });
-
-  // // run them all
-  // Promise.all(saves);
 });
 
 /**
@@ -73,9 +65,9 @@ authRouter.get('/signin', auth(), (req, res) => {
  * @returns {Object} 200 - { count: 2, results: [{}, {}]}
  */
 authRouter.get('/oauth', (req,res,next) => {
-  console.log('HELLO');
   oauth.authorize(req)
     .then( token => {
+      console.log(token);
       res.status(200).send(token);
     })
     .catch(next);

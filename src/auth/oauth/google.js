@@ -31,7 +31,7 @@ const authorize = (req) => {
         });
     })
     .then(oauthUser => {
-      return Users.createFromOAuth(oauthUser);
+      return Users.createFromOauth(oauthUser);
     })
     .then(actualRealUser => {
       return actualRealUser.generateToken();
